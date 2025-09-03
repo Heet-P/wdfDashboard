@@ -338,14 +338,9 @@ body.dark-mode .light-icon {
 .timeline-item {
     display: flex;
     margin-bottom: 60px;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.timeline-item.visible {
     opacity: 1;
     transform: translateY(0);
+    transition: none;
 }
 
 .timeline-item:nth-child(odd) {
@@ -393,9 +388,7 @@ body.dark-mode .light-icon {
 }
 
 .timeline-full-content {
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: static;
     width: 100%;
     background-color: var(--card-background);
     backdrop-filter: blur(10px);
@@ -404,23 +397,14 @@ body.dark-mode .light-icon {
     padding: 25px;
     box-shadow: var(--shadow);
     border: 2px solid rgba(255, 138, 101, 0.3);
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(0.9);
-    transition: all 0.3s ease;
-    z-index: 1;
-}
-
-.timeline-content:hover .timeline-full-content {
     opacity: 1;
     visibility: visible;
     transform: scale(1);
+    transition: none;
+    z-index: 1;
 }
 
-.timeline-content:hover .timeline-date-capsule {
-    opacity: 0;
-    visibility: hidden;
-}
+
 
 .timeline-date {
     font-size: 0.9rem;

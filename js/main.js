@@ -100,17 +100,8 @@ function initProfessorLogin() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         
-        // Check if Supabase auth is available
-        if (window.supabaseAuth && typeof window.supabaseAuth.signIn === 'function') {
-            // Sign in with Supabase
-            const { user, error } = await window.supabaseAuth.signIn(email, password);
-            
-            if (error) {
-                alert('Login failed: ' + error.message);
-                return;
-            }
-            
-            // If login successful
+        // Simple demo login check (Supabase removed)
+        if (email === 'professor@example.com' && password === 'password123') {
             alert('Login successful!');
             loginModal.classList.remove('active');
             // Set a session flag to indicate professor is logged in
@@ -118,40 +109,11 @@ function initProfessorLogin() {
             // Refresh dashboard to show professor view
             loadDashboard();
         } else {
-            // Fallback to simple check for demo purposes if Supabase is not integrated
-            if (email === 'professor@example.com' && password === 'password123') {
-                alert('Login successful!');
-                loginModal.classList.remove('active');
-                // Set a session flag to indicate professor is logged in
-                sessionStorage.setItem('isProfessor', 'true');
-                // Refresh dashboard to show professor view
-                loadDashboard();
-            } else {
-                alert('Invalid credentials. Please try again.');
-            }
+            alert('Invalid credentials. Please try again.');
         }
     });
     
-    // Check if user is already logged in on page load (when Supabase is integrated)
-    async function checkAuthStatus() {
-        if (window.supabase && typeof window.supabase.auth.getSession === 'function') {
-            const { data: { session } } = await window.supabase.auth.getSession();
-            
-            if (session) {
-                // Set a session flag to indicate professor is logged in
-                sessionStorage.setItem('isProfessor', 'true');
-                // Refresh dashboard to show professor view
-                loadDashboard();
-            }
-        }
-    }
-    
-    // Call auth check when DOM is loaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', checkAuthStatus);
-    } else {
-        checkAuthStatus();
-    }
+    // No Supabase session check needed
 }
 
 // Accessibility features

@@ -22,17 +22,7 @@ function initTimeline() {
 
 // Function to load timeline data from JSON or API
 async function loadTimelineData() {
-    // Check if Supabase integration is available
-    if (window.supabaseData && typeof window.supabaseData.getTimelineData === 'function') {
-        // Try to get data from Supabase
-        const { data, error } = await window.supabaseData.getTimelineData();
-        
-        // If successful, use the data from Supabase
-        if (data && !error) {
-            return data;
-        }
-    }
-    // Fallback to sample data if Supabase is not integrated yet
+    // Always use sample data (Supabase removed)
     return getSampleTimelineData();
 }
 
@@ -62,7 +52,7 @@ function getSampleTimelineData() {
             date: '2025-09-19',
             title: 'JavaScript Basics',
             description: 'Implemented interactive features using vanilla JavaScript.',
-            image: './assets/images/practical3.jpg',
+            image: './assets/images/practical3.jpg.svg  ',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -71,7 +61,7 @@ function getSampleTimelineData() {
             date: '2025-09-26',
             title: 'DOM Manipulation',
             description: 'Created dynamic content by manipulating the DOM with JavaScript.',
-            image: './assets/images/practical4.jpg',
+            image: './assets/images/practical4.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -80,7 +70,7 @@ function getSampleTimelineData() {
             date: '2025-10-03',
             title: 'Form Validation',
             description: 'Implemented client-side form validation using JavaScript.',
-            image: './assets/images/practical5.jpg',
+            image: './assets/images/practical5.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -89,7 +79,7 @@ function getSampleTimelineData() {
             date: '2025-10-10',
             title: 'API Integration',
             description: 'Connected to external APIs to fetch and display data.',
-            image: './assets/images/practical6.jpg',
+            image: './assets/images/practical6.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -98,7 +88,7 @@ function getSampleTimelineData() {
             date: '2025-10-17',
             title: 'Responsive Web Design',
             description: 'Created a fully responsive website that adapts to different screen sizes.',
-            image: './assets/images/practical1.jpg',
+            image: './assets/images/practical1.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -107,7 +97,7 @@ function getSampleTimelineData() {
             date: '2025-10-24',
             title: 'CSS Animations',
             description: 'Implemented complex animations and transitions using CSS3.',
-            image: './assets/images/practical2.jpg',
+            image: './assets/images/practical2.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -116,7 +106,7 @@ function getSampleTimelineData() {
             date: '2025-10-31',
             title: 'Local Storage',
             description: 'Built a web application that persists data using browser local storage.',
-            image: './assets/images/practical3.jpg',
+            image: './assets/images/practical3.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -125,7 +115,7 @@ function getSampleTimelineData() {
             date: '2025-11-07',
             title: 'Fetch API',
             description: 'Used the Fetch API to retrieve and display data from external sources.',
-            image: './assets/images/practical4.jpg',
+            image: './assets/images/practical4.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -134,7 +124,7 @@ function getSampleTimelineData() {
             date: '2025-11-14',
             title: 'ES6 Features',
             description: 'Implemented modern JavaScript features including arrow functions, destructuring, and modules.',
-            image: './assets/images/practical5.jpg',
+            image: './assets/images/practical5.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -143,7 +133,7 @@ function getSampleTimelineData() {
             date: '2025-11-21',
             title: 'Async/Await',
             description: 'Built asynchronous functionality using async/await patterns.',
-            image: './assets/images/practical6.jpg',
+            image: './assets/images/practical6.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -152,7 +142,7 @@ function getSampleTimelineData() {
             date: '2025-11-28',
             title: 'CSS Grid Layout',
             description: 'Created complex grid-based layouts using CSS Grid.',
-            image: './assets/images/practical1.jpg',
+            image: './assets/images/practical1.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -161,7 +151,7 @@ function getSampleTimelineData() {
             date: '2025-12-05',
             title: 'Web Accessibility',
             description: 'Implemented accessibility features to make web content more inclusive.',
-            image: './assets/images/practical2.jpg',
+            image: './assets/images/practical2.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         },
@@ -170,7 +160,7 @@ function getSampleTimelineData() {
             date: '2025-12-12',
             title: 'Final Project',
             description: 'Comprehensive web application showcasing all learned skills and techniques.',
-            image: './assets/images/practical3.jpg',
+            image: './assets/images/practical3.jpg.svg',
             demoUrl: '#',
             pdfUrl: '#'
         }
@@ -186,10 +176,10 @@ function renderTimelineItems(items) {
         const timelineItem = document.createElement('div');
         timelineItem.classList.add('timeline-item');
         timelineItem.setAttribute('data-date', item.date);
-        
+        // Make all items visible by default
+        timelineItem.classList.add('visible');
         // Format the date for display
         const formattedDate = formatDate(item.date);
-        
         timelineItem.innerHTML = `
             <div class="timeline-content">
                 <div class="timeline-date-capsule">${formattedDate}</div>
@@ -207,7 +197,6 @@ function renderTimelineItems(items) {
                 </div>
             </div>
         `;
-        
         timelineContainer.appendChild(timelineItem);
     });
 }
@@ -226,35 +215,20 @@ function initTimelineScroll() {
         timelineTrack.style.height = `${trackHeight}px`;
     }
     
-    // Update timeline ball position on scroll
+    // Only update timeline ball position on scroll (no item visibility logic)
     window.addEventListener('scroll', () => {
-        // Check if timeline section is in viewport
         const rect = timelineSection.getBoundingClientRect();
         const isVisible = rect.top < window.innerHeight && rect.bottom >= 0;
-        
         if (isVisible) {
-            // Calculate scroll progress within the timeline section
             const sectionTop = timelineSection.offsetTop;
             const scrollPosition = window.scrollY - sectionTop + window.innerHeight / 2;
             const sectionHeight = timelineSection.offsetHeight;
             const scrollPercentage = Math.min(Math.max(scrollPosition / sectionHeight, 0), 1);
-            
-            // Update ball position
             const trackHeight = timelineTrack.offsetHeight;
             const ballPosition = scrollPercentage * trackHeight;
             timelineBall.style.top = `${ballPosition}px`;
-            
-            // Animate timeline items as they come into view
-            timelineItems.forEach(item => {
-                const itemTop = item.offsetTop - timelineSection.offsetTop;
-                if (scrollPosition > itemTop - 200) {
-                    item.classList.add('visible');
-                }
-            });
         }
     });
-    
-    // Trigger scroll event to initialize positions
     window.dispatchEvent(new Event('scroll'));
 }
 
