@@ -1,10 +1,25 @@
 // Main JavaScript file for general functionality
+import { utils, eventBus } from './utils.js';
+
+// Global error handling
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+    utils.showErrorToast('Something went wrong. Please refresh the page.');
+});
+
+window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    utils.showErrorToast('An unexpected error occurred.');
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize the application
     initNavigation();
     initProfessorLogin();
     initAccessibility();
+    initKeyboardShortcuts();
+    initImageLoading();
+    initPerformanceOptimizations();
 });
 
 // Navigation functionality
@@ -80,17 +95,34 @@ function initProfessorLogin() {
     // Open modal
     loginBtn.addEventListener('click', () => {
         loginModal.classList.add('active');
+        // Trap focus in modal
+        const removeFocusTrap = utils.trapFocus(loginModal);
+        loginModal.setAttribute('data-focus-trap', 'active');
+        
+        // Store cleanup function
+        loginModal._removeFocusTrap = removeFocusTrap;
     });
 
-    // Close modal
-    closeModal.addEventListener('click', () => {
+    // Close modal function
+    const closeLoginModal = () => {
         loginModal.classList.remove('active');
-    });
+        // Remove focus trap
+        if (loginModal._removeFocusTrap) {
+            loginModal._removeFocusTrap();
+            loginModal._removeFocusTrap = null;
+        }
+        loginModal.removeAttribute('data-focus-trap');
+        // Return focus to login button
+        loginBtn.focus();
+    };
+
+    // Close modal
+    closeModal.addEventListener('click', closeLoginModal);
 
     // Close modal when clicking outside
     window.addEventListener('click', (e) => {
         if (e.target === loginModal) {
-            loginModal.classList.remove('active');
+            closeLoginModal();
         }
     });
 
@@ -102,16 +134,41 @@ function initProfessorLogin() {
         
         // Simple demo login check (Supabase removed)
         if (email === 'professor@example.com' && password === 'password123') {
-            alert('Login successful!');
-            loginModal.classList.remove('active');
+            utils.showSuccessToast('Login successful! Welcome, Professor.');
+            closeLoginModal();
             // Set a session flag to indicate professor is logged in
             sessionStorage.setItem('isProfessor', 'true');
+            // Show logout button
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) logoutBtn.style.display = 'block';
             // Refresh dashboard to show professor view
-            loadDashboard();
+            eventBus.emit('professorLogin', { isProfessor: true });
         } else {
-            alert('Invalid credentials. Please try again.');
+            utils.showErrorToast('Invalid credentials. Please try again.');
         }
     });
+    
+    // Initialize logout functionality
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            // Clear session
+            sessionStorage.removeItem('isProfessor');
+            logoutBtn.style.display = 'none';
+            
+            // Show success message
+            utils.showSuccessToast('Logged out successfully');
+            
+            // Emit logout event
+            eventBus.emit('professorLogout', { isProfessor: false });
+        });
+    }
+    
+    // Check if professor is already logged in
+    const isProfessor = sessionStorage.getItem('isProfessor') === 'true';
+    if (isProfessor && logoutBtn) {
+        logoutBtn.style.display = 'block';
+    }
     
     // No Supabase session check needed
 }
@@ -184,5 +241,87 @@ function animateOnScroll() {
 // Add scroll event listener for animations
 window.addEventListener('scroll', animateOnScroll);
 
+// Initialize keyboard shortcuts
+function initKeyboardShortcuts() {
+    document.addEventListener('keydown', utils.handleKeyboardShortcuts);
+    
+    // Additional app-specific shortcuts
+    document.addEventListener('keydown', (e) => {
+        // 'T' key to scroll to timeline
+        if (e.key.toLowerCase() === 't' && !e.ctrlKey && !e.metaKey) {
+            const timeline = document.getElementById('animated_timeline');
+            if (timeline) {
+                timeline.scrollIntoView({ behavior: 'smooth' });
+                e.preventDefault();
+            }
+        }
+        
+        // 'D' key to scroll to dashboard
+        if (e.key.toLowerCase() === 'd' && !e.ctrlKey && !e.metaKey) {
+            const dashboard = document.getElementById('dashboard_professor_view');
+            if (dashboard) {
+                dashboard.scrollIntoView({ behavior: 'smooth' });
+                e.preventDefault();
+            }
+        }
+    });
+}
+
+// Initialize image loading with fallbacks
+function initImageLoading() {
+    const images = document.querySelectorAll('img[data-src], img:not([src])');
+    
+    images.forEach(img => {
+        // Add loading class
+        img.classList.add('loading');
+        
+        // Load image with fallback
+        utils.loadImageWithFallback(img).then((success) => {
+            img.classList.remove('loading');
+            if (!success) {
+                console.warn('Failed to load image:', img.dataset.src || img.src);
+            }
+        });
+    });
+}
+
+// Initialize performance optimizations
+function initPerformanceOptimizations() {
+    // Debounced scroll handler for navbar
+    const debouncedScrollHandler = utils.debounce(() => {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    }, 10);
+    
+    window.addEventListener('scroll', debouncedScrollHandler);
+    
+    // Intersection Observer for animations instead of scroll events
+    const animationObserver = utils.createAnimationObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+                // Unobserve after animation to improve performance
+                animationObserver.unobserve(entry.target);
+            }
+        });
+    });
+    
+    // Observe elements that should animate
+    const animateElements = document.querySelectorAll('.animate-on-scroll, .timeline-item, .dashboard-card');
+    animateElements.forEach(el => animationObserver.observe(el));
+}
+
 // Call once on load to check for elements already in viewport
-window.addEventListener('load', animateOnScroll);
+window.addEventListener('load', () => {
+    // Initial animation check
+    const elements = document.querySelectorAll('.animate-on-scroll');
+    elements.forEach(element => {
+        if (utils.isInViewport(element)) {
+            element.classList.add('animated');
+        }
+    });
+});

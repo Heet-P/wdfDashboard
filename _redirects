@@ -1,0 +1,6 @@
+# Netlify redirects file
+# Redirect all non-existent routes to 404 page
+/* /404.html 404
+
+# Optional: Redirect old URLs if you had any
+# /old-page /new-page 301

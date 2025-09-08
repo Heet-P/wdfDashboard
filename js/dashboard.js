@@ -1,7 +1,13 @@
 // Dashboard functionality
+import { utils, eventBus } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboard();
+    
+    // Listen for professor login events
+    eventBus.on('professorLogin', () => {
+        loadDashboard();
+    });
 });
 
 function loadDashboard() {
@@ -181,23 +187,27 @@ function renderDashboardCards(items, isProfessor) {
         card.classList.add('dashboard-card');
         
         // Format the date for display
-        const formattedDate = formatDate(item.date);
+        const formattedDate = utils.formatDate(item.date);
         
         card.innerHTML = `
             <div class="card-image">
-                <img src="${item.image}" alt="${item.title}" loading="lazy">
+                <img data-src="${item.image}" alt="${utils.sanitizeInput(item.title)}" loading="lazy" class="loading">
             </div>
             <div class="card-content">
-                <h3 class="card-title">${item.title}</h3>
+                <h3 class="card-title">${utils.sanitizeInput(item.title)}</h3>
                 <div class="timeline-date">${formattedDate}</div>
-                ${isProfessor ? `<p class="timeline-description">${item.description}</p>` : ''}
+                ${isProfessor ? `<p class="timeline-description">${utils.sanitizeInput(item.description)}</p>` : ''}
                 <div class="card-buttons">
-                    <a href="${item.demoUrl}" class="btn primary" target="_blank">Live Demo</a>
+                    <a href="${item.demoUrl}" class="btn primary" target="_blank" rel="noopener noreferrer">Live Demo</a>
                     <a href="${item.pdfUrl}" class="btn secondary" download>Download PDF</a>
                     ${isProfessor ? `<button class="btn text add-feedback" data-id="${item.id}">Add Feedback</button>` : ''}
                 </div>
             </div>
         `;
+        
+        // Load image with fallback
+        const img = card.querySelector('img');
+        utils.loadImageWithFallback(img);
         
         dashboardGrid.appendChild(card);
     });
@@ -206,6 +216,9 @@ function renderDashboardCards(items, isProfessor) {
     if (isProfessor) {
         initProfessorFeatures();
     }
+    
+    // Initialize animations
+    initDashboardAnimations();
 }
 
 // Initialize professor-specific features
@@ -229,16 +242,18 @@ function showFeedbackModal(practicalId) {
     
     modal.innerHTML = `
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
+            <span class="close-modal" aria-label="Close feedback modal">&times;</span>
             <h2>Add Feedback for Practical #${practicalId}</h2>
             <form id="feedback-form">
                 <div class="form-group">
                     <label for="feedback">Feedback</label>
-                    <textarea id="feedback" rows="5" required></textarea>
+                    <textarea id="feedback" rows="5" required aria-describedby="feedback-help"></textarea>
+                    <small id="feedback-help">Provide constructive feedback for the student's work.</small>
                 </div>
                 <div class="form-group">
-                    <label for="grade">Grade</label>
-                    <input type="number" id="grade" min="0" max="100" required>
+                    <label for="grade">Grade (0-100)</label>
+                    <input type="number" id="grade" min="0" max="100" required aria-describedby="grade-help">
+                    <small id="grade-help">Enter a grade between 0 and 100.</small>
                 </div>
                 <button type="submit" class="btn primary">Submit Feedback</button>
             </form>
@@ -247,16 +262,22 @@ function showFeedbackModal(practicalId) {
     
     document.body.appendChild(modal);
     
+    // Focus trap for modal
+    const removeFocusTrap = utils.trapFocus(modal.querySelector('.modal-content'));
+    
     // Close modal functionality
-    const closeModal = modal.querySelector('.close-modal');
-    closeModal.addEventListener('click', () => {
+    const closeFeedbackModal = () => {
+        removeFocusTrap();
         document.body.removeChild(modal);
-    });
+    };
+    
+    const closeModal = modal.querySelector('.close-modal');
+    closeModal.addEventListener('click', closeFeedbackModal);
     
     // Close when clicking outside
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
-            document.body.removeChild(modal);
+            closeFeedbackModal();
         }
     });
     
@@ -267,17 +288,42 @@ function showFeedbackModal(practicalId) {
         const feedback = document.getElementById('feedback').value;
         const grade = document.getElementById('grade').value;
         
+        // Validate inputs
+        const sanitizedFeedback = utils.sanitizeInput(feedback);
+        const numericGrade = parseInt(grade);
+        
+        if (numericGrade < 0 || numericGrade > 100) {
+            utils.showErrorToast('Grade must be between 0 and 100.');
+            return;
+        }
+        
         // Save feedback locally (Supabase removed)
-        console.log(`Feedback for Practical #${practicalId}:`, { feedback, grade });
+        console.log(`Feedback for Practical #${practicalId}:`, { 
+            feedback: sanitizedFeedback, 
+            grade: numericGrade,
+            timestamp: new Date().toISOString()
+        });
+        
         // Show success message
-        alert('Feedback submitted successfully!');
-        document.body.removeChild(modal);
+        utils.showSuccessToast('Feedback submitted successfully!');
+        closeFeedbackModal();
     });
 }
 
-// Helper function to format date
-function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', options);
+// Add animation observer for dashboard cards
+function initDashboardAnimations() {
+    const animationObserver = utils.createAnimationObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+                animationObserver.unobserve(entry.target);
+            }
+        });
+    });
+    
+    const cards = document.querySelectorAll('.dashboard-card');
+    cards.forEach(card => {
+        card.classList.add('animate-on-scroll');
+        animationObserver.observe(card);
+    });
 }

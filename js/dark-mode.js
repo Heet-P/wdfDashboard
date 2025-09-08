@@ -1,4 +1,5 @@
 // Dark mode toggle functionality
+import { utils, eventBus } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initDarkMode();
@@ -36,10 +37,16 @@ function initDarkMode() {
         // Announce theme change for screen readers
         announceThemeChange(currentTheme);
         
+        // Show toast notification
+        utils.showSuccessToast(`Switched to ${currentTheme} mode`);
+        
         // Dispatch custom event for theme change
         document.dispatchEvent(new CustomEvent('themeChanged', {
             detail: { isDarkMode: isDarkMode }
         }));
+        
+        // Emit event through event bus
+        eventBus.emit('themeChanged', { isDarkMode, theme: currentTheme });
     });
 }
 

@@ -1,0 +1,40 @@
+{
+  "name": "wdf-lab-dashboard",
+  "version": "1.0.0",
+  "description": "Personal WDF Lab Dashboard - Interactive portfolio showcasing web development practicals",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "start": "node dev-server.js",
+    "lint": "eslint js/*.js",
+    "lint:fix": "eslint js/*.js --fix",
+    "validate": "html-validate index.html 404.html",
+    "test": "npm run lint && npm run validate"
+  },
+  "keywords": [
+    "portfolio",
+    "dashboard",
+    "web-development",
+    "practicals",
+    "student-portfolio",
+    "academic"
+  ],
+  "author": "Heet Parikh <24cs058@charusat.edu.in>",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "html-validate": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heetparikh/wdf-dashboard.git"
+  },
+  "homepage": "https://heetparikh.me",
+  "bugs": {
+    "url": "https://github.com/heetparikh/wdf-dashboard/issues"
+  }
+}

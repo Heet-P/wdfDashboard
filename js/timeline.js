@@ -1,4 +1,5 @@
 // Timeline functionality
+import { utils, eventBus } from './utils.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initTimeline();
@@ -172,32 +173,37 @@ function renderTimelineItems(items) {
     const timelineContainer = document.querySelector('.timeline-items');
     timelineContainer.innerHTML = '';
     
-    items.forEach((item, index) => {
+    items.forEach((item) => {
         const timelineItem = document.createElement('div');
-        timelineItem.classList.add('timeline-item');
+        timelineItem.classList.add('timeline-item', 'animate-on-scroll');
         timelineItem.setAttribute('data-date', item.date);
         // Make all items visible by default
         timelineItem.classList.add('visible');
         // Format the date for display
-        const formattedDate = formatDate(item.date);
+        const formattedDate = utils.formatDate(item.date);
+        
         timelineItem.innerHTML = `
             <div class="timeline-content">
                 <div class="timeline-date-capsule">${formattedDate}</div>
                 <div class="timeline-full-content">
                     <div class="timeline-date">${formattedDate}</div>
-                    <h3 class="timeline-title">${item.title}</h3>
-                    <p class="timeline-description">${item.description}</p>
+                    <h3 class="timeline-title">${utils.sanitizeInput(item.title)}</h3>
+                    <p class="timeline-description">${utils.sanitizeInput(item.description)}</p>
                     <div class="timeline-image">
-                        <img src="${item.image}" alt="${item.title}" loading="lazy">
+                        <img data-src="${item.image}" alt="${utils.sanitizeInput(item.title)}" loading="lazy" class="loading">
                     </div>
                     <div class="card-buttons">
-                        <a href="${item.demoUrl}" class="btn primary" target="_blank">Live Demo</a>
+                        <a href="${item.demoUrl}" class="btn primary" target="_blank" rel="noopener noreferrer">Live Demo</a>
                         <a href="${item.pdfUrl}" class="btn secondary" download>Download PDF</a>
                     </div>
                 </div>
             </div>
         `;
         timelineContainer.appendChild(timelineItem);
+        
+        // Load image with fallback
+        const img = timelineItem.querySelector('img');
+        utils.loadImageWithFallback(img);
     });
 }
 
@@ -208,6 +214,8 @@ function initTimelineScroll() {
     const timelineItems = document.querySelectorAll('.timeline-item');
     const timelineSection = document.getElementById('animated_timeline');
     
+    if (!timelineTrack || !timelineBall || !timelineSection) return;
+    
     // Set the height of the timeline track
     if (timelineItems.length > 0) {
         const lastItem = timelineItems[timelineItems.length - 1];
@@ -215,8 +223,8 @@ function initTimelineScroll() {
         timelineTrack.style.height = `${trackHeight}px`;
     }
     
-    // Only update timeline ball position on scroll (no item visibility logic)
-    window.addEventListener('scroll', () => {
+    // Debounced scroll handler for timeline ball
+    const debouncedTimelineScroll = utils.debounce(() => {
         const rect = timelineSection.getBoundingClientRect();
         const isVisible = rect.top < window.innerHeight && rect.bottom >= 0;
         if (isVisible) {
@@ -228,13 +236,16 @@ function initTimelineScroll() {
             const ballPosition = scrollPercentage * trackHeight;
             timelineBall.style.top = `${ballPosition}px`;
         }
-    });
-    window.dispatchEvent(new Event('scroll'));
+    }, 16); // ~60fps
+    
+    window.addEventListener('scroll', debouncedTimelineScroll);
+    
+    // Initial position
+    debouncedTimelineScroll();
 }
 
-// Helper function to format date
-function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', options);
-}
+// Listen for professor login events
+eventBus.on('professorLogin', (data) => {
+    // Refresh timeline if needed for professor view
+    console.log('Professor logged in, timeline updated');
+});

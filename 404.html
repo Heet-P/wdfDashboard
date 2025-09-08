@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found | WDF Dashboard</title>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/dark-mode.css">
+    <link rel="stylesheet" href="./css/404.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">WDF Dashboard</div>
+            <button class="theme-toggle" aria-label="Toggle dark mode">
+                <span class="material-symbols-rounded light-icon">light_mode</span>
+                <span class="material-symbols-rounded dark-icon">dark_mode</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 404 Error Section -->
+    <section class="error-section">
+        <div class="container">
+            <div class="error-content">
+                <div class="error-animation">
+                    <div class="error-number">4</div>
+                    <div class="error-icon">
+                        <span class="material-symbols-rounded">search_off</span>
+                    </div>
+                    <div class="error-number">4</div>
+                </div>
+                
+                <h1 class="error-title">Oops! Page Not Found</h1>
+                <p class="error-description">
+                    The page you're looking for seems to have wandered off into the digital void. 
+                    Don't worry, even the best developers get lost sometimes!
+                </p>
+                
+                <div class="error-suggestions">
+                    <h3>Here's what you can try:</h3>
+                    <ul>
+                        <li>Check if the URL is spelled correctly</li>
+                        <li>Go back to the previous page</li>
+                        <li>Visit our homepage to start fresh</li>
+                        <li>Use the search feature (coming soon!)</li>
+                    </ul>
+                </div>
+                
+                <div class="error-buttons">
+                    <a href="./index.html" class="btn primary">
+                        <span class="material-symbols-rounded">home</span>
+                        Back to Home
+                    </a>
+                    <button onclick="history.back()" class="btn secondary">
+                        <span class="material-symbols-rounded">arrow_back</span>
+                        Go Back
+                    </button>
+                </div>
+                
+                <div class="error-footer">
+                    <p>Still having trouble? The page might be under construction or temporarily unavailable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts -->
+    <script type="module" src="./js/dark-mode.js"></script>
+    <script type="module" src="./js/404.js"></script>
+</body>
+</html>
