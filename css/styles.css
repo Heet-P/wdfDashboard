@@ -346,7 +346,7 @@ body.dark-mode .light-icon {
     margin-bottom: 60px;
     opacity: 1;
     transform: translateY(0);
-    transition: none;
+    transition: all 0.6s ease-out;
 }
 
 .timeline-item:nth-child(odd) {
@@ -774,7 +774,7 @@ input:focus, textarea:focus {
 /* Animation classes */
 .animate-on-scroll {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
     transition: all 0.6s ease-out;
 }
 
@@ -783,16 +783,25 @@ input:focus, textarea:focus {
     transform: translateY(0);
 }
 
-.timeline-item:nth-child(odd) .animate-on-scroll.animate-in {
-    animation: slideInLeft 0.6s ease-out;
+/* Timeline specific animations */
+.timeline-item.animate-on-scroll {
+    opacity: 0;
 }
 
-.timeline-item:nth-child(even) .animate-on-scroll.animate-in {
-    animation: slideInRight 0.6s ease-out;
+.timeline-item.animate-on-scroll.animate-in {
+    opacity: 1;
+}
+
+.timeline-item:nth-child(odd).animate-on-scroll.animate-in {
+    animation: slideInLeft 0.6s ease-out forwards;
+}
+
+.timeline-item:nth-child(even).animate-on-scroll.animate-in {
+    animation: slideInRight 0.6s ease-out forwards;
 }
 
 .dashboard-card.animate-on-scroll.animate-in {
-    animation: scaleIn 0.6s ease-out;
+    animation: scaleIn 0.6s ease-out forwards;
 }
 
 /* Responsive Design */
